@@ -2,9 +2,7 @@ const { cache, cacheKeys, cacheTTL } = require('../config/cache');
 const logger = require('../utils/logger');
 
 class CacheService {
-  /**
-   * Get data with cache-first strategy
-   */
+  
   async getOrFetch(key, fetchFn, ttl = cacheTTL.HOT_DATA) {
     // Try cache first
     const cached = cache.get(key);
@@ -24,9 +22,7 @@ class CacheService {
     return { ...data, fromCache: false };
   }
 
-  /**
-   * Invalidate cache for district
-   */
+  
   invalidateDistrict(districtCode) {
     const keys = cache.keys();
     const districtKeys = keys.filter(k => k.includes(districtCode));
@@ -35,9 +31,7 @@ class CacheService {
     logger.info(`Invalidated ${districtKeys.length} cache keys for district ${districtCode}`);
   }
 
-  /**
-   * Warm cache for popular districts
-   */
+  
   async warmCache(districts, fetchFn) {
     logger.info(`Warming cache for ${districts.length} districts`);
     
@@ -55,16 +49,11 @@ class CacheService {
     logger.info('Cache warming completed');
   }
 
-  /**
-   * Get cache statistics
-   */
+  
   getStats() {
     return cache.getStats();
   }
 
-  /**
-   * Clear all cache
-   */
   clearAll() {
     cache.flush();
     logger.info('Cache cleared');

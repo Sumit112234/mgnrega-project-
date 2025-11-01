@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { TrendingUp, TrendingDown, Minus, Users, Briefcase, DollarSign, Activity, AlertCircle, CheckCircle, Loader, Search, Calendar, MapPin } from 'lucide-react';
+import { InstructionsModal, LocationDetector, NoDataModal } from './components/ModalsComponents';
 
 const API_BASE = import.meta.env.VITE_APP_API_URL;
 
@@ -25,6 +26,26 @@ const MGNREGADashboard = () => {
   
   const [error, setError] = useState('');
   const [view, setView] = useState('overview'); 
+  const [showInstructions, setShowInstructions] = useState(true);
+  const [showNoData, setShowNoData] = useState(false);
+
+
+const handleLocationFound = (data) => {
+  ////console.log('Location found:', data);
+  
+  // Set the selected state and district
+  setSelectedState(data.stateCode);
+  
+  // Wait a bit for districts to load, then set district
+  setTimeout(() => {
+    setSelectedDistrict(data.districtCode);
+  }, 500);
+  
+  // Show a success message if approximate
+  if (data.isApproximate) {
+    setError(`Showing approximate location: ${data.districtName}, ${data.stateName}`);
+  }
+};
 
   // Fetch states on mount
   useEffect(() => {
@@ -88,6 +109,9 @@ const MGNREGADashboard = () => {
         setDistrictData(data.data);
       }
     } catch (err) {
+     
+        setShowNoData(true);
+
       setError('Failed to fetch district data');
     } finally {
       setLoading(prev => ({ ...prev, data: false }));
@@ -233,6 +257,8 @@ const MGNREGADashboard = () => {
         )}
 
         {/* Filters */}
+
+ 
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
@@ -251,7 +277,7 @@ const MGNREGADashboard = () => {
                 disabled={loading.states}
               >
                 <option value="">-- Select State --</option>
-                {/* {console.log(states)} */}
+                {/* {////console.log(states)} */}
                 { states.map(state => (
                   <option key={state.state_code} value={state.state_code}>
                     {state.state_name}
@@ -307,6 +333,14 @@ const MGNREGADashboard = () => {
             </div>
           </div>
         </div>
+
+             <div className="col-span-full">
+              <LocationDetector 
+                onLocationFound={handleLocationFound}
+                states={states}
+                districts={districts}
+              />
+            </div>
 
         {loading.data ? (
           <div className="flex items-center justify-center py-20">
@@ -565,6 +599,18 @@ const MGNREGADashboard = () => {
           </div>
         )}
       </div>
+
+        <InstructionsModal 
+          isOpen={showInstructions}
+          onClose={() => setShowInstructions(false)}
+        />
+
+        <NoDataModal
+          isOpen={showNoData}
+          onClose={() => setShowNoData(false)}
+          districtName={selectedDistrict}
+          stateName={selectedState}
+        />
 
       {/* Footer */}
       <footer className="bg-gray-800 text-white py-6 mt-12">

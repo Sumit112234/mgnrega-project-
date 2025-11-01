@@ -16,7 +16,7 @@ const StateSelector = ({ onStateSelect, selectedState }) => {
       setError(null);
       const data = await api.getStates();
       
-      console.log('Fetched states:', data);
+      //console.log('Fetched states:', data);
       setStates(data.data);
     } catch (error) {
       console.error('Error loading states:', error);

@@ -21,7 +21,7 @@ const LocationDetector = ({ onDistrictDetected }) => {
       async (position) => {
         try {
           const { latitude, longitude } = position.coords;
-          console.log('Detected coordinates:', latitude, longitude);
+          //console.log('Detected coordinates:', latitude, longitude);
           const data = await api.detectDistrictByLocation(latitude, longitude);
           onDistrictDetected(data);
         } catch (err) {

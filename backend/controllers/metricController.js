@@ -1,18 +1,18 @@
-// controllers/metricController.js
+
 const District = require('../models/District');
 const Metric = require('../models/Metric');
 const asyncHandler = require('../middleware/asyncHandler');
 const CacheHelper = require('../utils/cacheHelper');
 const DataGovFetcher = require('../utils/fetchDataGov');
 
-// @desc    Get metrics for a district (DB-first with API fallback)
-// @route   GET /api/v1/metrics/districts/:districtId
-// @access  Public
+
+
+
 exports.getDistrictMetrics = asyncHandler(async (req, res) => {
   const { districtId } = req.params;
   const { month, year } = req.query;
 
-  // Validate inputs
+  
   if (!month || !year) {
     return res.status(400).json({
       success: false,
@@ -30,7 +30,7 @@ exports.getDistrictMetrics = asyncHandler(async (req, res) => {
     });
   }
 
-  // Check cache first
+  
   const cacheKey = CacheHelper.getMetricKey(districtId, yearNum, monthNum);
   let metrics = await CacheHelper.get(cacheKey);
 
@@ -42,7 +42,7 @@ exports.getDistrictMetrics = asyncHandler(async (req, res) => {
     });
   }
 
-  // Check database
+  
   const district = await District.findById(districtId);
   if (!district) {
     return res.status(404).json({
@@ -57,7 +57,7 @@ exports.getDistrictMetrics = asyncHandler(async (req, res) => {
     month: monthNum
   }).populate('districtId', 'name state district_code');
 
-  // If found in DB, cache and return
+  
   if (metrics) {
     await CacheHelper.set(cacheKey, metrics, 3600);
     return res.status(200).json({
@@ -68,7 +68,7 @@ exports.getDistrictMetrics = asyncHandler(async (req, res) => {
     });
   }
 
-  // Not in DB - fetch from API
+  
   
   try {
     console.log(`Fetching from API: ${district.district_code}, ${yearNum}-${monthNum}`);
@@ -79,7 +79,7 @@ exports.getDistrictMetrics = asyncHandler(async (req, res) => {
     );
 
     if (!metrics) {
-      // API returned no data - check for last available data
+      
       const lastMetric = await Metric.findOne({ districtId })
         .sort({ year: -1, month: -1 })
         .populate('districtId', 'name state district_code');
@@ -100,10 +100,10 @@ exports.getDistrictMetrics = asyncHandler(async (req, res) => {
       });
     }
 
-    // Populate district info
+    
     await metrics.populate('districtId', 'name state district_code');
 
-    // Cache the result
+    
     await CacheHelper.set(cacheKey, metrics, 3600);
 
     res.status(200).json({
@@ -113,7 +113,7 @@ exports.getDistrictMetrics = asyncHandler(async (req, res) => {
       lastUpdated: metrics.data_timestamp
     });
   } catch (err) {
-    // API failed - try to serve last available data
+    
     const lastMetric = await Metric.findOne({ districtId })
       .sort({ year: -1, month: -1 })
       .populate('districtId', 'name state district_code');
@@ -137,9 +137,9 @@ exports.getDistrictMetrics = asyncHandler(async (req, res) => {
   }
 });
 
-// @desc    Get historical metrics (trend analysis)
-// @route   GET /api/v1/metrics/districts/:districtId/history
-// @access  Public
+
+
+
 exports.getDistrictHistory = asyncHandler(async (req, res) => {
   const { districtId } = req.params;
   const { startYear, startMonth, endYear, endMonth, limit } = req.query;
@@ -175,9 +175,9 @@ exports.getDistrictHistory = asyncHandler(async (req, res) => {
   });
 });
 
-// @desc    Compare district with state average
-// @route   GET /api/v1/metrics/districts/:districtId/compare
-// @access  Public
+
+
+
 exports.compareWithState = asyncHandler(async (req, res) => {
   const { districtId } = req.params;
   const { month, year } = req.query;
@@ -192,7 +192,7 @@ exports.compareWithState = asyncHandler(async (req, res) => {
   const monthNum = parseInt(month);
   const yearNum = parseInt(year);
 
-  // Check cache
+  
   const cacheKey = CacheHelper.getComparisonKey(districtId, yearNum, monthNum);
   let comparison = await CacheHelper.get(cacheKey);
 
@@ -204,7 +204,7 @@ exports.compareWithState = asyncHandler(async (req, res) => {
     });
   }
 
-  // Get district info and metrics
+  
   const district = await District.findById(districtId);
   if (!district) {
     return res.status(404).json({
@@ -226,11 +226,11 @@ exports.compareWithState = asyncHandler(async (req, res) => {
     });
   }
 
-  // Get all districts in the same state
+  
   const stateDistricts = await District.find({ state: district.state }).select('_id');
   const districtIds = stateDistricts.map(d => d._id);
 
-  // Calculate state averages
+  
   const stateAvg = await Metric.aggregate([
     {
       $match: {
@@ -296,7 +296,7 @@ exports.compareWithState = asyncHandler(async (req, res) => {
     }
   };
 
-  // Cache for 1 hour
+  
   await CacheHelper.set(cacheKey, comparison, 3600);
 
   res.status(200).json({

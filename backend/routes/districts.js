@@ -13,7 +13,7 @@ const {
 
 const router = express.Router();
 
-// GET /api/v1/district/:districtCode/data
+
 router.get(
   '/district/:districtCode/data',
   dataLimiter,
@@ -21,7 +21,7 @@ router.get(
   getDistrictData
 );
 
-// GET /api/v1/district/:districtCode/history
+
 router.get(
   '/district/:districtCode/history',
   heavyLimiter,
@@ -29,7 +29,7 @@ router.get(
   getDistrictHistory
 );
 
-// GET /api/v1/district/:districtCode/comparison
+
 router.get(
   '/district/:districtCode/comparison',
   dataLimiter,

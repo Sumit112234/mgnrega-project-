@@ -1,21 +1,21 @@
 const NodeCache = require('node-cache');
 
-// Main cache instance
+
 const cache = new NodeCache({
-  stdTTL: parseInt(process.env.CACHE_TTL) || 300, // 5 minutes default
-  checkperiod: 120, // Check for expired keys every 2 minutes
-  useClones: false, // Better performance
+  stdTTL: parseInt(process.env.CACHE_TTL) || 300, 
+  checkperiod: 120, 
+  useClones: false, 
   deleteOnExpire: true
 });
 
-// Cache statistics
+
 let cacheStats = {
   hits: 0,
   misses: 0,
   apiCalls: 0
 };
 
-// Cache key generators
+
 const cacheKeys = {
   districtData: (districtCode, month, year) => `district:${districtCode}:${year}:${month}`,
   districtHistory: (districtCode, startDate, endDate) => `history:${districtCode}:${startDate}:${endDate}`,
@@ -25,7 +25,7 @@ const cacheKeys = {
   popularDistricts: () => 'popular:districts'
 };
 
-// Cache wrapper with statistics
+
 const cacheWrapper = {
   get: (key) => {
     const value = cache.get(key);
@@ -71,13 +71,13 @@ const cacheWrapper = {
   }
 };
 
-// TTL configurations for different data types
+
 const cacheTTL = {
-  HOT_DATA: 300,        // 5 minutes - current month
-  HISTORICAL: 3600,     // 1 hour - historical data
-  DISTRICTS: 86400,     // 24 hours - district list
-  LOCATION: 604800,     // 7 days - location mappings
-  COMPARISON: 1800      // 30 minutes - comparison data
+  HOT_DATA: 300,        
+  HISTORICAL: 3600,     
+  DISTRICTS: 86400,     
+  LOCATION: 604800,     
+  COMPARISON: 1800      
 };
 
 module.exports = {

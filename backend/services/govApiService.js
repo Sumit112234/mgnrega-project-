@@ -12,10 +12,7 @@ class GovApiService {
     this.apiLimit = parseInt(process.env.API_LIMIT) || 1000;
   }
 
-  /**
-   * Fetch data by state and financial year
-   * This is the primary method matching the government API structure
-   */
+ 
   async fetchByStateAndYear(stateName, finYear) {
     const startTime = Date.now();
     
@@ -62,10 +59,7 @@ class GovApiService {
     }
   }
 
-  /**
-   * Fetch district data from government API
-   * Now fetches by state and filters by district
-   */
+  
   async fetchDistrictData(districtCode, month, year, stateName = null) {
     const startTime = Date.now();
     
@@ -134,10 +128,6 @@ class GovApiService {
     }
   }
 
-  /**
-   * Fetch all states from API
-   * Get unique states from the data
-   */
   async fetchStates() {
     try {
       const response = await retryWithBackoff(
@@ -186,10 +176,7 @@ class GovApiService {
     }
   }
 
-  /**
-   * Fetch districts for a state
-   * Get unique districts from state data
-   */
+
   async fetchDistricts(stateCode, stateName = null) {
     try {
       // If state name not provided, fetch it first
@@ -254,9 +241,6 @@ class GovApiService {
     }
   }
 
-  /**
-   * Fetch all available financial years
-   */
   async fetchFinancialYears() {
     try {
       const response = await retryWithBackoff(

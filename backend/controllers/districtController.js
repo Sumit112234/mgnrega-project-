@@ -5,10 +5,7 @@ const cacheService = require('../services/cacheService');
 const { cache, cacheKeys, cacheTTL } = require('../config/cache');
 const logger = require('../utils/logger');
 
-/**
- * GET /api/v1/states/:stateCode/districts
- * Get all districts for a state
- */
+
 exports.getDistricts = async (req, res, next) => {
   try {
     const { stateCode } = req.params;
@@ -92,10 +89,7 @@ exports.getDistricts = async (req, res, next) => {
   }
 };
 
-/**
- * GET /api/v1/district/:districtCode/data
- * Get MGNREGA data for a district for specific month/year
- */
+
 exports.getDistrictData = async (req, res, next) => {
   try {
     const { districtCode } = req.params;
@@ -188,10 +182,7 @@ exports.getDistrictData = async (req, res, next) => {
   }
 };
 
-/**
- * GET /api/v1/district/:districtCode/history
- * Get historical data for a district
- */
+
 exports.getDistrictHistory = async (req, res, next) => {
   try {
     const { districtCode } = req.params;
@@ -254,10 +245,7 @@ exports.getDistrictHistory = async (req, res, next) => {
   }
 };
 
-/**
- * GET /api/v1/district/:districtCode/comparison
- * Compare district with state average
- */
+
 exports.getDistrictComparison = async (req, res, next) => {
   try {
     const { districtCode } = req.params;
@@ -349,7 +337,6 @@ exports.getDistrictComparison = async (req, res, next) => {
   }
 };
 
-// Helper function to calculate trends
 function calculateTrends(data) {
   if (data.length < 2) return {};
 
@@ -374,7 +361,7 @@ function calculateTrends(data) {
   };
 }
 
-// Helper function to calculate performance
+
 function calculatePerformance(districtData, stateAvg) {
   if (!districtData.length || !stateAvg) return {};
 

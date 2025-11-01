@@ -1,6 +1,6 @@
 const Joi = require('joi');
 
-// Validation schemas
+
 const schemas = {
   districtCode: Joi.string()
     .pattern(/^\d{3,4}$/)
@@ -41,7 +41,7 @@ const schemas = {
     })
 };
 
-// Validate district data request
+
 const validateDistrictData = (req, res, next) => {
   const schema = Joi.object({
     districtCode: schemas.districtCode,
@@ -66,7 +66,7 @@ const validateDistrictData = (req, res, next) => {
   next();
 };
 
-// Validate history request
+
 const validateHistory = (req, res, next) => {
   const schema = Joi.object({
     districtCode: schemas.districtCode,
@@ -88,7 +88,7 @@ const validateHistory = (req, res, next) => {
     });
   }
 
-  // Validate date range
+  
   const start = new Date(value.startDate);
   const end = new Date(value.endDate);
   const minDate = new Date('2020-01');
@@ -105,7 +105,7 @@ const validateHistory = (req, res, next) => {
   next();
 };
 
-// Validate state code
+
 const validateStateCode = (req, res, next) => {
   const schema = Joi.object({
     stateCode: schemas.stateCode
@@ -126,7 +126,7 @@ const validateStateCode = (req, res, next) => {
   next();
 };
 
-// Validate sync state request
+
 const validateSyncState = (req, res, next) => {
   const schema = Joi.object({
     stateCode: schemas.stateCode,

@@ -1,4 +1,4 @@
-// src/cron/dataRefresh.js
+
 const cron = require('node-cron');
 const MGNREGAData = require('../models/MGNREGAData');
 const District = require('../models/District');
@@ -6,17 +6,14 @@ const govApiService = require('../services/govApiService');
 const cacheService = require('../services/cacheService');
 const logger = require('../utils/logger');
 
-/**
- * Daily refresh job - Runs at midnight
- * Refreshes data for districts accessed in last 30 days
- */
+
 const dailyRefreshJob = cron.schedule('0 0 * * *', async () => {
   logger.info('Starting daily data refresh job');
   
   try {
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
     
-    // Find districts with recent activity
+    
     const activeDistricts = await MGNREGAData.aggregate([
       {
         $match: {
@@ -39,12 +36,12 @@ const dailyRefreshJob = cron.schedule('0 0 * * *', async () => {
 
     logger.info(`Found ${activeDistricts.length} active districts to refresh`);
 
-    // Get current month and year
+    
     const now = new Date();
     const month = now.toLocaleString('en-US', { month: 'short' });
     const year = `${now.getFullYear()}-${now.getFullYear() + 1}`;
 
-    // Refresh data for each district
+    
     let successCount = 0;
     let failCount = 0;
 
@@ -70,14 +67,14 @@ const dailyRefreshJob = cron.schedule('0 0 * * *', async () => {
             { upsert: true }
           );
 
-          // Invalidate cache for this district
+          
           cacheService.invalidateDistrict(district._id);
           successCount++;
         } else {
           failCount++;
         }
 
-        // Rate limiting - wait 1 second between requests
+        
         await new Promise(resolve => setTimeout(resolve, 1000));
 
       } catch (error) {
@@ -95,15 +92,12 @@ const dailyRefreshJob = cron.schedule('0 0 * * *', async () => {
   scheduled: false
 });
 
-/**
- * Weekly full refresh - Runs every Sunday at 2 AM
- * Refreshes data for top 100 most popular districts
- */
+
 const weeklyRefreshJob = cron.schedule('0 2 * * 0', async () => {
   logger.info('Starting weekly full refresh job');
   
   try {
-    // Get top 100 most queried districts
+    
     const popularDistricts = await MGNREGAData.aggregate([
       {
         $group: {
@@ -127,14 +121,14 @@ const weeklyRefreshJob = cron.schedule('0 2 * * 0', async () => {
     const month = now.toLocaleString('en-US', { month: 'short' });
     const year = `${now.getFullYear()}-${now.getFullYear() + 1}`;
 
-    // Prepare cache warming data
+    
     const warmingData = popularDistricts.map(d => ({
       code: d._id,
       month,
       year
     }));
 
-    // Warm cache for popular districts
+    
     await cacheService.warmCache(warmingData, async (code, month, year) => {
       const result = await govApiService.fetchDistrictData(code, month, year);
       
@@ -163,10 +157,7 @@ const weeklyRefreshJob = cron.schedule('0 2 * * 0', async () => {
   scheduled: false
 });
 
-/**
- * Monthly cleanup - Runs on 1st of every month at 3 AM
- * Removes data older than 3 years
- */
+
 const monthlyCleanupJob = cron.schedule('0 3 1 * *', async () => {
   logger.info('Starting monthly cleanup job');
   
@@ -180,7 +171,7 @@ const monthlyCleanupJob = cron.schedule('0 3 1 * *', async () => {
 
     logger.info(`Cleanup completed. Deleted ${result.deletedCount} old records`);
 
-    // Clear cache after cleanup
+    
     cacheService.clearAll();
     logger.info('Cache cleared after cleanup');
 
@@ -191,18 +182,15 @@ const monthlyCleanupJob = cron.schedule('0 3 1 * *', async () => {
   scheduled: false
 });
 
-/**
- * Cache refresh job - Runs every 10 minutes
- * Refreshes cache for hot data
- */
+
 const cacheRefreshJob = cron.schedule('*/10 * * * *', async () => {
   try {
-    // Get cache statistics
+    
     const stats = cacheService.getStats();
     
     logger.debug(`Cache stats - Keys: ${stats.keys}, Hit rate: ${stats.hitRate}%`);
 
-    // If cache hit rate is low, warm cache for popular districts
+    
     if (parseFloat(stats.hitRate) < 50 && stats.keys < 50) {
       logger.info('Cache hit rate low, warming cache...');
       
@@ -248,9 +236,7 @@ const cacheRefreshJob = cron.schedule('*/10 * * * *', async () => {
   scheduled: false
 });
 
-/**
- * Start all cron jobs
- */
+
 function startCronJobs() {
   dailyRefreshJob.start();
   weeklyRefreshJob.start();
@@ -260,9 +246,6 @@ function startCronJobs() {
   logger.info('All cron jobs started successfully');
 }
 
-/**
- * Stop all cron jobs
- */
 function stopCronJobs() {
   dailyRefreshJob.stop();
   weeklyRefreshJob.stop();

@@ -5,12 +5,12 @@ const healthRouter = require('./health');
 
 const router = express.Router();
 
-// Mount routes
-router.use('/states', statesRouter);
-router.use('/', districtsRouter); // District routes at root level
-router.use('/', healthRouter); // Health routes at root level
 
-// API info endpoint
+router.use('/states', statesRouter);
+router.use('/', districtsRouter); 
+router.use('/', healthRouter); 
+
+
 router.get('/', (req, res) => {
   res.json({
     success: true,

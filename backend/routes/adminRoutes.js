@@ -11,8 +11,7 @@ const {
 
 
 const router = express.Router();
-// Add authentication middleware here in production
-// router.use(authMiddleware);
+
 
 router.post('/upload', uploadData);
 router.post('/sync', triggerSync);

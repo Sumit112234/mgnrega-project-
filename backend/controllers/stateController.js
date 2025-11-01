@@ -3,10 +3,7 @@ const govApiService = require('../services/govApiService');
 const { cache, cacheKeys, cacheTTL } = require('../config/cache');
 const logger = require('../utils/logger');
 
-/**
- * POST /api/v1/states
- * Fetch and store all states
- */
+
 exports.fetchStates = async (req, res, next) => {
   try {
     // Fetch from government API
@@ -56,10 +53,7 @@ exports.fetchStates = async (req, res, next) => {
   }
 };
 
-/**
- * POST /api/v1/states/:stateCode/sync
- * Sync all data for a state from government API
- */
+
 exports.syncStateData = async (req, res, next) => {
   try {
     const { stateCode } = req.params;

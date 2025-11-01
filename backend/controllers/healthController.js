@@ -1,13 +1,10 @@
-// src/controllers/healthController.js
+
 const mongoose = require('mongoose');
 const MGNREGAData = require('../models/MGNREGAData');
 const cacheService = require('../services/cacheService');
 const logger = require('../utils/logger');
 
-/**
- * GET /api/v1/health
- * System health check
- */
+
 exports.getHealth = async (req, res) => {
   try {
     const health = {
@@ -18,13 +15,13 @@ exports.getHealth = async (req, res) => {
       services: {}
     };
 
-    // Check MongoDB connection
+    
     health.services.mongodb = {
       status: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
       readyState: mongoose.connection.readyState
     };
 
-    // Check cache
+    
     const cacheStats = cacheService.getStats();
     health.services.cache = {
       status: 'active',
@@ -32,7 +29,7 @@ exports.getHealth = async (req, res) => {
       hitRate: `${cacheStats.hitRate}%`
     };
 
-    // Memory usage
+    
     const memUsage = process.memoryUsage();
     health.memory = {
       rss: `${(memUsage.rss / 1024 / 1024).toFixed(2)} MB`,
@@ -40,7 +37,7 @@ exports.getHealth = async (req, res) => {
       heapTotal: `${(memUsage.heapTotal / 1024 / 1024).toFixed(2)} MB`
     };
 
-    // Determine overall status
+    
     const overallStatus = health.services.mongodb.status === 'connected' ? 200 : 503;
 
     res.status(overallStatus).json({
@@ -58,21 +55,18 @@ exports.getHealth = async (req, res) => {
   }
 };
 
-/**
- * GET /api/v1/stats
- * Get system statistics
- */
+
 exports.getStats = async (req, res, next) => {
   try {
     const cacheStats = cacheService.getStats();
 
-    // Get database stats
+    
     const totalRecords = await MGNREGAData.countDocuments();
     const recentRecords = await MGNREGAData.countDocuments({
       updated_at: { $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) }
     });
 
-    // Get most active districts
+    
     const activeDistricts = await MGNREGAData.aggregate([
       {
         $group: {
@@ -103,13 +97,10 @@ exports.getStats = async (req, res, next) => {
   }
 };
 
-/**
- * GET /api/v1/popular-districts
- * Get most queried districts
- */
+
 exports.getPopularDistricts = async (req, res, next) => {
   try {
-    // Get most frequently updated districts (proxy for popularity)
+    
     const popular = await MGNREGAData.aggregate([
       {
         $match: {
